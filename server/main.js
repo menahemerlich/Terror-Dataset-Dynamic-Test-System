@@ -14,25 +14,33 @@ app.get("/loadData", async (req, res) => {
         const csvString = await fs.readFile('./db/terrorData.csv', 'utf-8');
         const data = await csv.parse(csvString, { columns: true })
         const dataToSubmit = data.slice(0, 50)
-        console.log(dataToSubmit.length);
         res.status(200).json(dataToSubmit)
     } catch (error) {
         console.error(error);
     }
 })
 
-app.post("/score", async(req, res)=>{
+app.get("/score", async (req, res) => {
     try {
-        if (req.body && req.body.score){
-            const {score} = req.body
-            await writeFile("./score.json", {date: new Date().toISOString(), score:score})
+        const scoreData = await fs.readFile("./score.json", "utf-8");
+        res.status(200).json(JSON.parse(scoreData));
+    } catch (error) {
+        res.status(500).send("שגיאה בקריאת הציון");
+    }
+});
+
+app.post("/score", async (req, res) => {
+    try {
+        if (req.body && req.body.score) {
+            const { score } = req.body
+            await writeFile("./score.json", { date: new Date().toISOString(), score: score })
             res.status(200).send("הציון עודכן בהצלחה")
-        }else{
+        } else {
             res.status(400).send("שגיאה בשליחת הנתונים")
         }
     } catch (error) {
         console.error(error);
-    
+
     }
 })
 
